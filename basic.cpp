@@ -1,14 +1,14 @@
 #include <windows.h>
 #include <math.h>
 
-// Ô²ÖÜÂÊ
+// åœ†å‘¨ç‡
 #define PI 3.1415926
 
-// µØÍ¼³¤¿í
+// åœ°å›¾é•¿å®½
 #define MAP_WIDTH 20
 #define MAP_HEIGHT 20
 
-// µØÍ¼£¬·ÇÁãÇøÓòÎªÇ½±Ú£¬±ß³¤Îª 100 £¬Êı×Ö´ú±íÑÕÉ«£¬ÉÏ±±ÏÂÄÏ×óÎ÷ÓÒ¶«
+// åœ°å›¾ï¼Œéé›¶åŒºåŸŸä¸ºå¢™å£ï¼Œè¾¹é•¿ä¸º 100 ï¼Œæ•°å­—ä»£è¡¨é¢œè‰²ï¼Œä¸ŠåŒ—ä¸‹å—å·¦è¥¿å³ä¸œ
 INT map[MAP_HEIGHT][MAP_WIDTH] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2},
                                   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
                                   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
@@ -30,53 +30,53 @@ INT map[MAP_HEIGHT][MAP_WIDTH] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
                                   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
                                   {2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}};
 
-// µ¥Î»·½ĞÎÇøÓòµÄ±ß³¤
+// å•ä½æ–¹å½¢åŒºåŸŸçš„è¾¹é•¿
 #define UNIT_CUBE_SIZE 50.0
 
-// µ¥Î»ÒÆ¶¯ËÙ¶È
+// å•ä½ç§»åŠ¨é€Ÿåº¦
 #define UNIT_SPEED 1.0
 
-// Íæ¼Ò×ø±ê£¬Ô­µãÎ»ÓÚµØÍ¼×óÏÂ½Ç£¬ x Öá·½ÏòÎªÕı±±£¬ y Öá·½ÏòÎªÕı¶«
+// ç©å®¶åæ ‡ï¼ŒåŸç‚¹ä½äºåœ°å›¾å·¦ä¸‹è§’ï¼Œ x è½´æ–¹å‘ä¸ºæ­£åŒ—ï¼Œ y è½´æ–¹å‘ä¸ºæ­£ä¸œ
 DOUBLE posX;
 DOUBLE posY;
 
-// Íæ¼ÒÊÓ½Ç·½ÏòÏòÁ¿
+// ç©å®¶è§†è§’æ–¹å‘å‘é‡
 DOUBLE dirX;
 DOUBLE dirY;
 
-// Íæ¼ÒÒÆ¶¯ËÙ¶È
+// ç©å®¶ç§»åŠ¨é€Ÿåº¦
 DOUBLE movSpeed = 5.0 * UNIT_SPEED;
 
-// Íæ¼ÒÊÓ½ÇĞı×ªËÙ¶È£¬»¡¶ÈÖÆ
+// ç©å®¶è§†è§’æ—‹è½¬é€Ÿåº¦ï¼Œå¼§åº¦åˆ¶
 DOUBLE rotSpeed = PI / 180;
 
-// Ïà»úÆ½Ãæ·½ÏòÏòÁ¿
+// ç›¸æœºå¹³é¢æ–¹å‘å‘é‡
 DOUBLE planeX;
 DOUBLE planeY;
 
-// ´°¿Ú x ×ø±êÍ¶Ó°µ½Ïà»úÆ½ÃæµÄ x ×ø±ê
+// çª—å£ x åæ ‡æŠ•å½±åˆ°ç›¸æœºå¹³é¢çš„ x åæ ‡
 DOUBLE cameraX;
 
-// ¹âÏß·½Ïò
+// å…‰çº¿æ–¹å‘
 DOUBLE rayDirX;
 DOUBLE rayDirY;
 
-// ¹âÏß³¤¶È
+// å…‰çº¿é•¿åº¦
 DOUBLE rayLength;
 
-// ¹âÏßÂäµãÍ¶Éäµ½Ïà»úµÄ¾àÀë
+// å…‰çº¿è½ç‚¹æŠ•å°„åˆ°ç›¸æœºçš„è·ç¦»
 DOUBLE rayProjection;
 
-// ĞèÒª»æÖÆµÄÇ½±ÚµÄ¸ß¶È
+// éœ€è¦ç»˜åˆ¶çš„å¢™å£çš„é«˜åº¦
 INT wallHeight;
 
-// Ç½±ÚÑÕÉ«
+// å¢™å£é¢œè‰²
 INT wallColor;
 
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);                      // ÏûÏ¢´¦Àí
-DOUBLE CountRayLength(DOUBLE posx, DOUBLE posy, DOUBLE dirx, DOUBLE diry); // ÇóÄ³µã·¢³öÉäÏßµ½»÷ÖĞÕÏ°­ÎïµÄ¾àÀë
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);                      // æ¶ˆæ¯å¤„ç†
+DOUBLE CountRayLength(DOUBLE posx, DOUBLE posy, DOUBLE dirx, DOUBLE diry); // æ±‚æŸç‚¹å‘å‡ºå°„çº¿åˆ°å‡»ä¸­éšœç¢ç‰©çš„è·ç¦»
 
-// ³ÌĞòÈë¿Ú
+// ç¨‹åºå…¥å£
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
                    PSTR szCmdLine,
@@ -87,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     MSG msg;
     WNDCLASS wndclass;
 
-    // Éè¼Æ´°¿Ú
+    // è®¾è®¡çª—å£
     wndclass.style = CS_HREDRAW | CS_VREDRAW;
     wndclass.lpfnWndProc = WndProc;
     wndclass.cbClsExtra = 0;
@@ -99,10 +99,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
     wndclass.lpszMenuName = NULL;
     wndclass.lpszClassName = szAppName;
 
-    // ×¢²á´°¿Ú
+    // æ³¨å†Œçª—å£
     RegisterClass(&wndclass);
 
-    // ´´½¨´°¿Ú
+    // åˆ›å»ºçª—å£
     hwnd = CreateWindow(szAppName,
                         TEXT("MyDemo"),
                         NULL,
@@ -110,14 +110,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
                         CW_USEDEFAULT, CW_USEDEFAULT,
                         NULL, NULL, hInstance, NULL);
 
-    // ÏÔÊ¾Ê±Òş²ØÊó±ê
+    // æ˜¾ç¤ºæ—¶éšè—é¼ æ ‡
     ShowCursor(FALSE);
 
-    // ÏÔÊ¾´°¿Ú²¢¸üĞÂ
+    // æ˜¾ç¤ºçª—å£å¹¶æ›´æ–°
     ShowWindow(hwnd, SW_SHOWMAXIMIZED);
     UpdateWindow(hwnd);
 
-    // ÏûÏ¢Ñ­»·
+    // æ¶ˆæ¯å¾ªç¯
     while (TRUE)
     {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -132,7 +132,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     return msg.wParam;
 }
 
-// ÏûÏ¢´¦Àí
+// æ¶ˆæ¯å¤„ç†
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static int cxClient, cyClient;
@@ -147,7 +147,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-        // Êı¾İ³õÊ¼»¯£¬·½ÏòÏòÁ¿ºÍÏà»úÆ½ÃæÏòÁ¿´¹Ö±ÇÒ³¤¶ÈÎª 1
+        // æ•°æ®åˆå§‹åŒ–ï¼Œæ–¹å‘å‘é‡å’Œç›¸æœºå¹³é¢å‘é‡å‚ç›´ä¸”é•¿åº¦ä¸º 1
         posX = 900.0;
         posY = 900.0;
         dirX = 0.0;
@@ -155,25 +155,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         planeX = 1.0;
         planeY = 0.0;
 
-        hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));    // ºÚ±Ê
-        hPenR = CreatePen(PS_SOLID, 1, RGB(255, 0, 0)); // ºì±Ê
-        hPenG = CreatePen(PS_SOLID, 1, RGB(0, 255, 0)); // ÂÌ±Ê
-        hPenB = CreatePen(PS_SOLID, 1, RGB(0, 0, 255)); // À¶±Ê
-        hBr = CreateSolidBrush(RGB(255, 255, 255));     // °×Ë¢
+        hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));    // é»‘ç¬”
+        hPenR = CreatePen(PS_SOLID, 1, RGB(255, 0, 0)); // çº¢ç¬”
+        hPenG = CreatePen(PS_SOLID, 1, RGB(0, 255, 0)); // ç»¿ç¬”
+        hPenB = CreatePen(PS_SOLID, 1, RGB(0, 0, 255)); // è“ç¬”
+        hBr = CreateSolidBrush(RGB(255, 255, 255));     // ç™½åˆ·
 
-        SetCursorPos(GetSystemMetrics(SM_CXSCREEN) / 2, GetSystemMetrics(SM_CYSCREEN) / 2); // Êó±ê¹â±êÎ»ÓÚÆÁÄ»ÖĞĞÄ
-        SetTimer(hwnd, 1, 20, NULL);                                                        // ¼ÆÊ±Æ÷
+        SetCursorPos(GetSystemMetrics(SM_CXSCREEN) / 2, GetSystemMetrics(SM_CYSCREEN) / 2); // é¼ æ ‡å…‰æ ‡ä½äºå±å¹•ä¸­å¿ƒ
+        SetTimer(hwnd, 1, 20, NULL);                                                        // è®¡æ—¶å™¨
         return 0;
     }
 
     case WM_SIZE:
     {
-        // ´°¿Ú³¤¿í
+        // çª—å£é•¿å®½
         cxClient = LOWORD(lParam);
         cyClient = HIWORD(lParam);
         GetClientRect(hwnd, &rt);
 
-        // Ë«»º³å
+        // åŒç¼“å†²
         hdc = GetDC(hwnd);
         hdcMem = CreateCompatibleDC(hdc);
         hBitmap = CreateCompatibleBitmap(hdc, rt.right - rt.left, rt.bottom - rt.top);
@@ -194,26 +194,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         FillRect(hdcMemPaint, &rt, hBr);
 
-        // ÓÎÏ·»­Ãæ
+        // æ¸¸æˆç”»é¢
         for (INT screenX = 0; screenX < cxClient; screenX++)
         {
-            // ´°¿Ú x Öá×ø±êÍ¶Éäµ½Ïà»úÆ½ÃæµÄ x Öá×ø±ê£¬·¶Î§Îª -1 µ½ 1
+            // çª—å£ x è½´åæ ‡æŠ•å°„åˆ°ç›¸æœºå¹³é¢çš„ x è½´åæ ‡ï¼ŒèŒƒå›´ä¸º -1 åˆ° 1
             cameraX = 2.0 * screenX / (DOUBLE)cxClient - 1.0;
 
-            // ¼ÆËã¹âÏß·½Ïò
+            // è®¡ç®—å…‰çº¿æ–¹å‘
             rayDirX = dirX + planeX * cameraX;
             rayDirY = dirY + planeY * cameraX;
 
-            // ¼ÆËã¹âÏß³¤¶È
+            // è®¡ç®—å…‰çº¿é•¿åº¦
             rayLength = CountRayLength(posX, posY, rayDirX, rayDirY);
 
-            // ¼ÆËã¹âÏßÂäµãÍ¶Éäµ½Ïà»úµÄ¾àÀë
+            // è®¡ç®—å…‰çº¿è½ç‚¹æŠ•å°„åˆ°ç›¸æœºçš„è·ç¦»
             rayProjection = 1.0 / sqrt(pow(rayDirX, 2) + pow(rayDirY, 2)) * rayLength;
 
-            // ¼ÆËãĞèÒª»æÖÆµÄÇ½±ÚµÄ¸ß¶È
+            // è®¡ç®—éœ€è¦ç»˜åˆ¶çš„å¢™å£çš„é«˜åº¦
             wallHeight = (INT)(cyClient * UNIT_CUBE_SIZE * 2.0 / rayProjection);
 
-            // Ñ¡ÔñÇ½±ÚÑÕÉ«
+            // é€‰æ‹©å¢™å£é¢œè‰²
             switch (wallColor)
             {
             case 1:
@@ -233,7 +233,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            // »­Ç½±Ú
+            // ç”»å¢™å£
             MoveToEx(hdcMemPaint, screenX, (cyClient - wallHeight) / 2, NULL);
             LineTo(hdcMemPaint, screenX, (cyClient + wallHeight) / 2);
         }
@@ -249,7 +249,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
-        // ×ÊÔ´Ïú»Ù
+        // èµ„æºé”€æ¯
         KillTimer(hwnd, 1);
         SelectObject(hdcMem, hPenOld);
         DeleteObject(hPen);
@@ -267,9 +267,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN:
     {
-        if (wParam == VK_ESCAPE) // ESC¼üÍË³ö³ÌĞò
+        if (wParam == VK_ESCAPE) // ESCé”®é€€å‡ºç¨‹åº
         {
-            // ×ÊÔ´Ïú»Ù
+            // èµ„æºé”€æ¯
             KillTimer(hwnd, 1);
             SelectObject(hdcMem, hPenOld);
             DeleteObject(hPen);
@@ -288,15 +288,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_TIMER:
     {
-        if (GetAsyncKeyState('W') & 0x8000) // ÏòÇ°ÒÆ¶¯
+        if (GetAsyncKeyState('W') & 0x8000) // å‘å‰ç§»åŠ¨
         {
-            if (CountRayLength(posX + dirX * movSpeed, posY + dirY * movSpeed, dirX, dirY) > UNIT_CUBE_SIZE) // Ç°·½ÊÇ·ñÓĞÕÏ°­Îï
+            if (CountRayLength(posX + dirX * movSpeed, posY + dirY * movSpeed, dirX, dirY) > UNIT_CUBE_SIZE) // å‰æ–¹æ˜¯å¦æœ‰éšœç¢ç‰©
             {
-                // ¼ÆËãÍæ¼Ò×ø±ê
+                // è®¡ç®—ç©å®¶åæ ‡
                 posX += dirX * movSpeed;
                 posY += dirY * movSpeed;
 
-                // ÖØĞÂ»æÖÆ
+                // é‡æ–°ç»˜åˆ¶
                 FillRect(hdcMem, &rt, hBr);
 
                 for (INT screenX = 0; screenX < cxClient; screenX++)
@@ -338,7 +338,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 BitBlt(hdc, 0, 0, cxClient, cyClient, hdcMem, 0, 0, SRCCOPY);
             }
         }
-        else if (GetAsyncKeyState('S') & 0x8000) // ÏòºóÒÆ¶¯
+        else if (GetAsyncKeyState('S') & 0x8000) // å‘åç§»åŠ¨
         {
             if (CountRayLength(posX - dirX * movSpeed, posY - dirY * movSpeed, -1.0 * dirX, -1.0 * dirY) > UNIT_CUBE_SIZE)
             {
@@ -386,9 +386,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 BitBlt(hdc, 0, 0, cxClient, cyClient, hdcMem, 0, 0, SRCCOPY);
             }
         }
-        if (GetAsyncKeyState('A') & 0x8000) // Ïò×óÒÆ¶¯
+        if (GetAsyncKeyState('A') & 0x8000) // å‘å·¦ç§»åŠ¨
         {
-            // ¼ÆËã·½ÏòÏòÁ¿£¬´¹Ö±Ïò×ó
+            // è®¡ç®—æ–¹å‘å‘é‡ï¼Œå‚ç›´å‘å·¦
             DOUBLE dirx = dirX, diry = dirY;
             DOUBLE oldDirx = dirx;
             dirx = dirx * cos(PI / 2.0) - diry * sin(PI / 2.0);
@@ -396,7 +396,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (CountRayLength(posX + dirx * movSpeed, posY + diry * movSpeed, dirx, diry) > UNIT_CUBE_SIZE)
             {
-                // ¼ÆËãÍæ¼Ò×ø±ê
+                // è®¡ç®—ç©å®¶åæ ‡
                 posX += dirx * movSpeed;
                 posY += diry * movSpeed;
 
@@ -441,9 +441,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 BitBlt(hdc, 0, 0, cxClient, cyClient, hdcMem, 0, 0, SRCCOPY);
             }
         }
-        else if (GetAsyncKeyState('D') & 0x8000) // ÏòÓÒÒÆ¶¯
+        else if (GetAsyncKeyState('D') & 0x8000) // å‘å³ç§»åŠ¨
         {
-            // ¼ÆËã·½ÏòÏòÁ¿£¬´¹Ö±ÏòÓÒ
+            // è®¡ç®—æ–¹å‘å‘é‡ï¼Œå‚ç›´å‘å³
             DOUBLE dirx = dirX, diry = dirY;
             DOUBLE oldDirx = dirx;
             dirx = dirx * cos(-PI / 2.0) - diry * sin(-PI / 2.0);
@@ -503,9 +503,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         POINT curPos, preCurPos = {GetSystemMetrics(SM_CXSCREEN) / 2, GetSystemMetrics(SM_CYSCREEN) / 2};
         GetCursorPos(&curPos);
 
-        if (curPos.x < preCurPos.x) // Ïò×óĞı×ªÊÓ½Ç
+        if (curPos.x < preCurPos.x) // å‘å·¦æ—‹è½¬è§†è§’
         {
-            // ¼ÆËã·½ÏòÏòÁ¿ºÍÏà»úÏòÁ¿£¬Á½ÕßÊ¼ÖÕ´¹Ö±ÇÒ³¤¶È²»±ä
+            // è®¡ç®—æ–¹å‘å‘é‡å’Œç›¸æœºå‘é‡ï¼Œä¸¤è€…å§‹ç»ˆå‚ç›´ä¸”é•¿åº¦ä¸å˜
             DOUBLE oldDirX = dirX;
             dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
             dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
@@ -553,7 +553,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             BitBlt(hdc, 0, 0, cxClient, cyClient, hdcMem, 0, 0, SRCCOPY);
         }
-        else if (curPos.x > preCurPos.x) // ÏòÓÒĞı×ªÊÓ½Ç
+        else if (curPos.x > preCurPos.x) // å‘å³æ—‹è½¬è§†è§’
         {
             DOUBLE oldDirX = dirX;
             dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
@@ -611,25 +611,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-// ÇóÄ³µã·¢³öÉäÏßµ½»÷ÖĞÕÏ°­ÎïµÄ¾àÀë
+// æ±‚æŸç‚¹å‘å‡ºå°„çº¿åˆ°å‡»ä¸­éšœç¢ç‰©çš„è·ç¦»
 DOUBLE CountRayLength(DOUBLE posx, DOUBLE posy, DOUBLE dirx, DOUBLE diry)
 {
-    // ¹âÏß×ø±ê
+    // å…‰çº¿åæ ‡
     DOUBLE rayX = posx;
     DOUBLE rayY = posy;
 
-    // ¹âÏßÎ»ÒÆ
+    // å…‰çº¿ä½ç§»
     DOUBLE disX = 0.0;
     DOUBLE disY = 0.0;
 
-    // ¹âÏß×ø±ê¶ÔÓ¦µÄµØÍ¼ÏÂ±ê
+    // å…‰çº¿åæ ‡å¯¹åº”çš„åœ°å›¾ä¸‹æ ‡
     INT rayMapX;
     INT rayMapY;
 
-    // ¼ÆËã¹âÏßÂäµã×ø±ê
+    // è®¡ç®—å…‰çº¿è½ç‚¹åæ ‡
     do
     {
-        // ¼ÆËã¹âÏßµ½ÏÂÒ»¸ö·½ĞÎÇøÓòµÄÎ»ÒÆ
+        // è®¡ç®—å…‰çº¿åˆ°ä¸‹ä¸€ä¸ªæ–¹å½¢åŒºåŸŸçš„ä½ç§»
         if (dirx > 0)
             disX = (INT)(rayX / 100 + 1) * 100.0 - rayX;
         else if (dirx < 0)
@@ -639,18 +639,18 @@ DOUBLE CountRayLength(DOUBLE posx, DOUBLE posy, DOUBLE dirx, DOUBLE diry)
         else if (diry < 0)
             disY = (INT)((rayY - 1) / 100) * 100.0 - rayY;
 
-        // ¼ÆËã¹âÏß·¢ÉäµÄËÙ¶ÈÏòÁ¿
+        // è®¡ç®—å…‰çº¿å‘å°„çš„é€Ÿåº¦å‘é‡
         DOUBLE velX = fabs(dirx) / sqrt(pow(dirx, 2) + pow(diry, 2));
         DOUBLE velY = fabs(diry) / sqrt(pow(dirx, 2) + pow(diry, 2));
 
-        // ¹âÏß´«²¥µ½ÏÂÒ»¸ö·½ĞÎÇøÓòµÄÊ±¼äÏòÁ¿
+        // å…‰çº¿ä¼ æ’­åˆ°ä¸‹ä¸€ä¸ªæ–¹å½¢åŒºåŸŸçš„æ—¶é—´å‘é‡
         DOUBLE timeX = velX != 0 ? fabs(disX) / velX : DOUBLE(1.79769111186211570811527121711701157e+108L);
         DOUBLE timeY = velY != 0 ? fabs(disY) / velY : DOUBLE(1.79769111186211570811527121711701157e+108L);
 
-        // ÅĞ¶Ï¹âÏß»÷ÖĞ·½ĞÎÇøÓòµÄÎ»ÖÃ£¬ÃüÖĞÄÏ±±²à±ßÎªtrue£¬ ÃüÖĞ¶«Î÷²à±ßÎªfalse
+        // åˆ¤æ–­å…‰çº¿å‡»ä¸­æ–¹å½¢åŒºåŸŸçš„ä½ç½®ï¼Œå‘½ä¸­å—åŒ—ä¾§è¾¹ä¸ºtrueï¼Œ å‘½ä¸­ä¸œè¥¿ä¾§è¾¹ä¸ºfalse
         BOOL side = timeX > timeY ? true : false;
 
-        // ¼ÆËã¹âÏß×ø±ê
+        // è®¡ç®—å…‰çº¿åæ ‡
         if (side)
         {
             rayX += dirx != 0 ? dirx * fabs(1.0 / dirx) * fabs(disY * fabs(dirx / diry)) : 0;
@@ -662,14 +662,14 @@ DOUBLE CountRayLength(DOUBLE posx, DOUBLE posy, DOUBLE dirx, DOUBLE diry)
             rayY += diry != 0 ? diry * fabs(1.0 / diry) * fabs(disX * fabs(diry / dirx)) : 0;
         }
 
-        // ¼ÆËã¹âÏß×ø±ê¶ÔÓ¦µÄµØÍ¼ÏÂ±ê
+        // è®¡ç®—å…‰çº¿åæ ‡å¯¹åº”çš„åœ°å›¾ä¸‹æ ‡
         rayMapX = dirx != 0 ? floor((rayX + dirx * fabs(0.1 / dirx)) / 100) + 1 : (INT)(rayX / 100) + 1;
         rayMapY = diry != 0 ? MAP_HEIGHT - floor((rayY + diry * fabs(0.1 / diry)) / 100) - 2 : MAP_HEIGHT - (INT)(rayY / 100) - 2;
 
-    } while (!map[rayMapY][rayMapX]); // ÊÇ·ñÃüÖĞÕÏ°­Îï
+    } while (!map[rayMapY][rayMapX]); // æ˜¯å¦å‘½ä¸­éšœç¢ç‰©
 
-    // ÉèÖÃÇ½±ÚÑÕÉ«
+    // è®¾ç½®å¢™å£é¢œè‰²
     wallColor = map[rayMapY][rayMapX];
 
-    return sqrt(pow(posx - rayX, 2) + pow(posy - rayY, 2)); // ¹âÏß³õÊ¼Î»ÖÃµ½ÂäµãµÄ³¤¶È
+    return sqrt(pow(posx - rayX, 2) + pow(posy - rayY, 2)); // å…‰çº¿åˆå§‹ä½ç½®åˆ°è½ç‚¹çš„é•¿åº¦
 }
